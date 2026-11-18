@@ -859,8 +859,8 @@ function viewLabor() {
   v.append(h("header", { class: "chap-head", style: "--stripe:var(--c-purple)" }, h("div", { class: "eyebrow" }, "Werkzeuge"), h("h1", {}, "Formel-Labor"),
     h("p", { class: "hook" }, "Alle Formeln der Bände an einem Ort. Klick auf eine Größe für Bedeutung, Einheit und Einfluss; mit den Reglern rechnest du live.")));
   const groups: [string, string[]][] = [["Stöchiometrie (Kap. 1)", ["n_m", "c_nV", "n_V", "yield"]], ["Energetik (Kap. 2)", ["ea_r"]], ["Kinetik (Kap. 3–4)", ["v_dc", "rate", "rgt", "vhat", "vbar", "boltz", "arrh"]], ["Gleichgewicht (Kap. 7)", ["K_k", "pq"]]];
-  for (const [t, ks] of groups) { v.append(h("h2", { style: "font-family:var(--font-display);font-size:24px;margin:30px 0 0" }, t)); ks.forEach(k => v.append(formulaPanel(k))); }
-  v.append(h("h2", { style: "font-family:var(--font-display);font-size:24px;margin:30px 0 0" }, "MWG-Rechner"), mwgWidget({ key: "nh3" }));
+  for (const [t, ks] of groups) { v.append(h("h2", { style: "font-size:20px;margin:24px 0 0" }, t)); ks.forEach(k => v.append(formulaPanel(k))); }
+  v.append(h("h2", { style: "font-size:20px;margin:24px 0 0" }, "MWG-Rechner"), mwgWidget({ key: "nh3" }));
   return v;
 }
 // Karteikarten (Leitner-System)
@@ -946,7 +946,7 @@ function buildSide() {
   for (const [g, vs] of Object.entries(groups)) {
     side.append(h("nav", { class: "navgroup", "aria-label": g }, h("h2", {}, g), h("ul", { class: "nav" }, ...vs.map(v => h("li", {}, h("a", { href: "#" + v.id, "data-id": v.id }, h("span", { class: "num" }, v.num), h("span", {}, v.kind === "chap" || v.kind === "ex" ? (A.chapters.concat(A.ex).find(c => c.id === v.id) || {}).plain : v.title), h("span", { class: "ringslot", "data-ring": v.kind === "chap" && A.quiz[v.id] ? v.id : "" })))))));
   }
-  side.append(h("div", { class: "sidefoot" }, h("div", { id: "sync" }, "Fortschritt wird in diesem Browser gespeichert."), h("div", { style: "margin-top:6px" }, h("button", { class: "btn", type: "button", onclick: toggleTheme, style: "font-size:12.5px;padding:4px 10px" }, "Hell / Dunkel"))));
+  side.append(h("div", { class: "sidefoot" }, h("div", { id: "sync" }, "Fortschritt wird in diesem Browser gespeichert.")));
   updateSideRings();
 }
 function ring(m) {
@@ -955,10 +955,6 @@ function ring(m) {
     s("circle", { cx: 11, cy: 11, r, fill: "none", stroke: val >= 0.8 ? css("--c-green") : css("--c-orange"), "stroke-width": 3, "stroke-dasharray": `${C * val} ${C}`, transform: "rotate(-90 11 11)" }));
 }
 function updateSideRings() { $$("[data-ring]").forEach(el => { const id = el.dataset.ring; el.innerHTML = ""; if (id) { el.append(ring(mastery(id))); el.title = "Meisterschaft: " + masteryLabel(mastery(id))[0]; } }); }
-function toggleTheme() {
-  const r = document.documentElement; const cur = r.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-  r.setAttribute("data-theme", cur === "dark" ? "light" : "dark"); render();
-}
 function render() {
   if (typeof examTimer !== "undefined" && examTimer) { clearInterval(examTimer); examTimer = null; }
   const id = (location.hash || "#start").slice(1);
@@ -1166,7 +1162,7 @@ function viewKonto() {
     h("div", { class: "ctl", style: "margin-top:10px" }, h("label", { for: showId, style: "justify-content:flex-start;gap:10px" }, show, "Im Ranking und im Vergleich mit Freunden anzeigen")),
     h("p", { class: "note" }, "Sichtbar für andere sind nur dein Anzeigename, deine Punkte, deine Kapitel-Meisterschaft und deine Prüfungsergebnisse. Notizen, Antworten und Karteikarten bleiben privat."),
     h("div", { class: "btnrow" }, save), msg));
-  v.append(h("section", { class: "panel" }, h("h2", {}, "Darstellung"), h("div", { class: "btnrow" }, h("button", { class: "btn", type: "button", onclick: toggleTheme }, "Hell / Dunkel wechseln")), h("p", { class: "note" }, "Die App passt sich automatisch an Handy, Tablet und Laptop an. Auf dem Handy findest du die wichtigsten Bereiche in der Leiste unten.")));
+  v.append(h("section", { class: "panel" }, h("h2", {}, "Darstellung"), h("p", { class: "note" }, "Die App passt sich automatisch an Handy, Tablet und Laptop an. Auf dem Handy findest du die wichtigsten Bereiche in der Leiste unten.")));
   const s = Social.summary();
   v.append(h("section", { class: "panel" }, h("h2", {}, "Deine Punkte"), h("p", { class: "score" }, s.pts + " Punkte"),
     h("p", { class: "note" }, "Punkte = bestes Ergebnis jedes Wissenschecks in Prozent (8 Kapitel, max. 800) + bestes Ergebnis jeder Klausur-Simulation in Prozent (3 Simulationen, max. 300)."),
@@ -1194,7 +1190,7 @@ function viewRanking() {
       let rank = 0, lastPts = null;
       const tb = h("tbody");
       rows.forEach((b, i) => { if (b.pts !== lastPts) { rank = i + 1; lastPts = b.pts; } const me = b.id === Social.st.id;
-        const tr = h("tr", { style: me ? "background:var(--t-blue)" : "" }, h("td", {}, String(rank) + "."), h("td", {}), h("td", { style: "text-align:right;font-family:var(--font-mono)" }, String(b.pts || 0)));
+        const tr = h("tr", { style: me ? "background:var(--t-blue)" : "" }, h("td", {}, String(rank) + "."), h("td", {}), h("td", { style: "text-align:right;font-family:Consolas,monospace" }, String(b.pts || 0)));
         tr.children[1].textContent = b.name + (me ? " (du)" : ""); tb.append(tr); });
       panel.append(h("div", { class: "tablewrap prose" }, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Platz"), h("th", {}, "Name"), h("th", { style: "text-align:right" }, "Punkte"))), tb)));
     }
@@ -1226,7 +1222,7 @@ function viewCompare() {
   const tb = h("tbody");
   A.chapters.filter(c => A.quiz[c.id]).forEach(c => { const tr = h("tr", {}, h("td", {}, "Kap. " + c.num + " · " + c.plain)); people.forEach(p => tr.append(cell(p.ch ? p.ch[c.id] : null))); tb.append(tr); });
   A.sims.forEach((x, i) => { const tr = h("tr", {}, h("td", {}, "Simulation " + "ABC"[i])); people.forEach(p => tr.append(cell(p.ex ? p.ex[x.id] : null))); tb.append(tr); });
-  const trp = h("tr", {}, h("td", {}, h("strong", {}, "Punkte"))); people.forEach(p => trp.append(h("td", { style: "font-family:var(--font-mono)" }, String(p.pts || 0)))); tb.append(trp);
+  const trp = h("tr", {}, h("td", {}, h("strong", {}, "Punkte"))); people.forEach(p => trp.append(h("td", { style: "font-family:Consolas,monospace" }, String(p.pts || 0)))); tb.append(trp);
   v.append(h("section", { class: "panel" }, h("h2", {}, "Gegenüberstellung"), h("div", { class: "tablewrap prose" }, h("table", {}, h("thead", {}, thead), tb)),
     h("p", { class: "note" }, "Meisterschaft je Kapitel: 60 % Wissenscheck, 40 % Selbsteinschätzung. Die Werte der anderen werden aktualisiert, sobald sie lernen.")));
   return v;
